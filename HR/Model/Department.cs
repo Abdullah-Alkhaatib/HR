@@ -12,6 +12,7 @@ namespace HR.Model
         public string Description { get; set; }
         public int? FloorNumber { get; set; }
 
+
         [ForeignKey("Lookup")]
         public long? TypeId { get; set; } // Foreign Key
         public Lookup? Lookup { get; set; } // Navigation Property

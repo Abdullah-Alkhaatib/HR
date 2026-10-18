@@ -27,6 +27,7 @@ namespace HR.Controllers
         public IActionResult GetAll([FromQuery] FilterDepartmentsDto filterDepartmentDto)
         {
             var data = from department in _dbContext.Departments
+                       from lookup in _dbContext.Lookups.Where(x => x.Id == department.TypeId).DefaultIfEmpty() // Left Join
                        where (filterDepartmentDto.DepartmentName == null || department.Name.ToUpper().Contains(filterDepartmentDto.DepartmentName.ToUpper())) &&
                        (filterDepartmentDto.FloorNumber == null || department.FloorNumber == filterDepartmentDto.FloorNumber)
                        select new DepartmentDto
@@ -34,7 +35,9 @@ namespace HR.Controllers
                            Id = department.Id,
                            Name = department.Name,
                            Description = department.Description,
-                           FloorNumber = department.FloorNumber
+                           FloorNumber = department.FloorNumber,
+                           TypeId = lookup.Id,
+                           TypeName = lookup.Name
                        };
             return Ok(data);
         }
@@ -42,20 +45,17 @@ namespace HR.Controllers
         [HttpGet("GetById")]
         public IActionResult GetById([FromQuery] long id)
         {
-            var department = _dbContext.Departments.FirstOrDefault(x => x.Id == id);
-            if (department == null)
+            var department = _dbContext.Departments.Select(x => new DepartmentDto
             {
-                return NotFound("Department does not exist");
-            }
-            var departmentDto = new DepartmentDto
-            {
-                Id = department.Id,
-                Name = department.Name,
-                Description = department.Description,
-                FloorNumber = department.FloorNumber
-            };
+                Id = x.Id,
+                Name = x.Name,
+                Description = x.Description,
+                FloorNumber = x.FloorNumber,
+                TypeId = x.Lookup.Id,
+                TypeName = x.Lookup.Name
+            }).FirstOrDefault(x => x.Id == id);
 
-            return Ok(departmentDto);
+            return Ok(department);
         }
 
         [HttpPost("Add")]
@@ -66,7 +66,8 @@ namespace HR.Controllers
                 Id = 0,
                 Name = departmentDto.Name,
                 Description = departmentDto.Description,
-                FloorNumber = departmentDto.FloorNumber
+                FloorNumber = departmentDto.FloorNumber,
+                TypeId = departmentDto.TypeId
             };
             _dbContext.Departments.Add(department);
             _dbContext.SaveChanges();
@@ -85,6 +86,7 @@ namespace HR.Controllers
             department.Name = departmentDto.Name;
             department.Description = departmentDto.Description;
             department.FloorNumber = departmentDto.FloorNumber;
+            department.TypeId = departmentDto.TypeId;
 
             _dbContext.SaveChanges();
 
