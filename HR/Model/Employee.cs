@@ -33,5 +33,10 @@ namespace HR.Model
         [ForeignKey("Lookup")]
         public long? PositionId { get; set; } // Foreign Key
         public Lookup? Lookup { get; set; } // Navigation Property
+
+
+        [ForeignKey("User")]
+        public long? UserId { get; set; } // Foreign Key
+        public User? User { get; set; } // Navigation Property
     }
 }

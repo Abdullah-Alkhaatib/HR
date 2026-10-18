@@ -90,6 +90,9 @@ namespace HR.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<long?>("UserId")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
                     b.HasIndex("DepartmentId");
@@ -97,6 +100,8 @@ namespace HR.Migrations
                     b.HasIndex("ManagerId");
 
                     b.HasIndex("PositionId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Employees");
                 });
@@ -182,6 +187,30 @@ namespace HR.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HR.Model.User", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("HashedPassword")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("HR.Model.Department", b =>
                 {
                     b.HasOne("HR.Model.Lookup", "Lookup")
@@ -205,11 +234,17 @@ namespace HR.Migrations
                         .WithMany()
                         .HasForeignKey("PositionId");
 
+                    b.HasOne("HR.Model.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
                     b.Navigation("DepartmentRow");
 
                     b.Navigation("Lookup");
 
                     b.Navigation("Manager");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }
