@@ -209,6 +209,15 @@ namespace HR.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            HashedPassword = "$2a$11$lKfDRHIViyJS1UFWB9AF5u6O32QuH3zC/vsexOW6O9XyIaNYeJ8A6",
+                            IsAdmin = true,
+                            Username = "admin"
+                        });
                 });
 
             modelBuilder.Entity("HR.Model.Department", b =>

@@ -1,5 +1,8 @@
 using HR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +13,20 @@ builder.Services.AddControllers();
 //builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        var key = Encoding.UTF8.GetBytes("SKDJFSJKJDSJK!!2@@@#EJSJD872DKFSKDKK"); // Define the secret key
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false, // The source where the token is issued
+            ValidateAudience = false, // The users whome can this token
+            ValidateIssuerSigningKey = true, //Make sure that the token is using my secret key
+            IssuerSigningKey = new SymmetricSecurityKey(key) // Generate the token using our key
+        };
+    });
 
 // Add DbContext
 builder.Services.AddDbContext<HrDbContext>(options =>

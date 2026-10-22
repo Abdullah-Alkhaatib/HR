@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using HR.Model;
 using HR.DTOs.Employees;
 using HR.DTOs.Employees;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Controllers
 {
+    [Authorize]
     [Route("api/Employees")] // Data annotation => يعني انو كل ال API routes رح تبدا ب api/Employees
     [ApiController] // Data annotation
     public class EmployeesController : ControllerBase
@@ -17,6 +19,8 @@ namespace HR.Controllers
         {
             _dbContext = dbContext;
         }
+
+        [Authorize(Roles = "HR, Admin")]
         [HttpGet("GetAll")] // Data annotation => يعني انو هذا ال method رح يكون GET request]
         public IActionResult GetAll([FromQuery]FilterEmployeeDto filterDto) // Query parameter, Position is optional parameter
         {
@@ -86,6 +90,15 @@ namespace HR.Controllers
         [HttpPost("Add")]
         public IActionResult Add([FromBody] SaveEmployeeDto employeeDto)
         {
+            var user = new User()
+            {
+                Id = 0, // Ignored
+                Username = $"{employeeDto.Name}_HR",
+                HashedPassword = BCrypt.Net.BCrypt.HashPassword($"{employeeDto.Name}@123"), // يعني رح اعمل hash لل password قبل ما احفظو بال database
+                IsAdmin = false
+            };
+            _dbContext.Add(user);
+
             var employee = new Employee()
             {
                 //Id = employees.Max(x => x.Id) + 1, // Auto increment Id
@@ -100,10 +113,12 @@ namespace HR.Controllers
                 StartDate = employeeDto.StartDate,
                 EndDate = employeeDto.EndDate,
                 DepartmentId = employeeDto.DepartmentId,
-                ManagerId = employeeDto.ManagerId
+                ManagerId = employeeDto.ManagerId,
+                User = user
             };
 
             _dbContext.Employees.Add(employee);
+
             _dbContext.SaveChanges();
             return Ok();
         }
