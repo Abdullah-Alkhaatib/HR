@@ -184,6 +184,34 @@ namespace HR.Migrations
                             MajorCode = 1,
                             MinorCode = 3,
                             Name = "Technical"
+                        },
+                        new
+                        {
+                            Id = 9L,
+                            MajorCode = 2,
+                            MinorCode = 0,
+                            Name = "Vacation Types"
+                        },
+                        new
+                        {
+                            Id = 10L,
+                            MajorCode = 2,
+                            MinorCode = 1,
+                            Name = "Annual Vacation"
+                        },
+                        new
+                        {
+                            Id = 11L,
+                            MajorCode = 2,
+                            MinorCode = 2,
+                            Name = "Sick Vacation"
+                        },
+                        new
+                        {
+                            Id = 12L,
+                            MajorCode = 2,
+                            MinorCode = 3,
+                            Name = "Unpaid Vacation"
                         });
                 });
 
@@ -220,6 +248,41 @@ namespace HR.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HR.Model.Vacation", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("EmployeeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("TypeId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("TypeId");
+
+                    b.ToTable("Vacations");
+                });
+
             modelBuilder.Entity("HR.Model.Department", b =>
                 {
                     b.HasOne("HR.Model.Lookup", "Lookup")
@@ -254,6 +317,25 @@ namespace HR.Migrations
                     b.Navigation("Manager");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HR.Model.Vacation", b =>
+                {
+                    b.HasOne("HR.Model.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HR.Model.Lookup", "Type")
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Type");
                 });
 #pragma warning restore 612, 618
         }

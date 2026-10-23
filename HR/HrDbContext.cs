@@ -27,7 +27,13 @@ namespace HR
                 new Lookup { Id = 5, MajorCode = 1, MinorCode = 0, Name = "Department Types" },
                 new Lookup { Id = 6, MajorCode = 1, MinorCode = 1, Name = "Finance" },
                 new Lookup { Id = 7, MajorCode = 1, MinorCode = 2, Name = "Administration" },
-                new Lookup { Id = 8, MajorCode = 1, MinorCode = 3, Name = "Technical" }
+                new Lookup { Id = 8, MajorCode = 1, MinorCode = 3, Name = "Technical" },
+
+                // Vacation Types ( Major Code = 2 )
+                new Lookup { Id = 9, MajorCode = 2, MinorCode = 0, Name = "Vacation Types" },
+                new Lookup { Id = 10, MajorCode = 2, MinorCode = 1, Name = "Annual Vacation" },
+                new Lookup { Id = 11, MajorCode = 2, MinorCode = 2, Name = "Sick Vacation" },
+                new Lookup { Id = 12, MajorCode = 2, MinorCode = 3, Name = "Unpaid Vacation" }
             );
 
             // Seed Users
@@ -45,5 +51,6 @@ namespace HR
         public DbSet<Department> Departments { get; set; }
         public DbSet<Lookup> Lookups { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Vacation> Vacations { get; set; }
     }
 }
