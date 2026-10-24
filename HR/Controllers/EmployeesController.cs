@@ -22,143 +22,178 @@ namespace HR.Controllers
 
         [Authorize(Roles = "HR, Admin")]
         [HttpGet("GetAll")] // Data annotation => يعني انو هذا ال method رح يكون GET request]
-        public IActionResult GetAll([FromQuery]FilterEmployeeDto filterDto) // Query parameter, Position is optional parameter
+        public IActionResult GetAll([FromQuery] FilterEmployeeDto filterDto) // Query parameter, Position is optional parameter
         {
-            // LINQ query syntax
-            var data = from employee in _dbContext.Employees
-                       from department in _dbContext.Departments.Where(x => x.Id == employee.DepartmentId).DefaultIfEmpty() // Left Join
-                       from manager in _dbContext.Employees.Where(x => x.Id == employee.ManagerId).DefaultIfEmpty() // Left Join
-                       from lookup in _dbContext.Lookups.Where(x => x.Id == employee.PositionId).DefaultIfEmpty() // Left Join
-                                                                                                                   //where employee.Position == position
-                                                                                                                   //where (position == null || employee.Position == position) // if position is null, return all employees
-                       where 
-                       (filterDto.PositionId == null || employee.PositionId == filterDto.PositionId) && 
-                             (filterDto.EmployeeName == null || employee.Name.ToUpper().Contains(filterDto.EmployeeName.ToUpper())) &&
-                             (filterDto.IsActive == null || employee.IsActive == filterDto.IsActive)
-                       //orderby employee.Age
-                       orderby employee.Id
-                       select new EmployeeDto
-                       {
-                           Id = employee.Id,
-                           Name = employee.Name,
-                           //Age = employee.Age,
-                           BirthDate = employee.BirthDate,
-                           //Position = employee.Position,
-                           PositionId = employee.PositionId,
-                           PositionName = lookup.Name,
-                           IsActive = employee.IsActive,
-                           StartDate = employee.StartDate,
-                           Phone = employee.Phone,
-                           ManagerId = employee.ManagerId,
-                           ManagerName = manager.Name,
-                           DepartmentId = employee.DepartmentId,
-                           DepartmentName = department.Name
-                       };
-            return Ok(data);
+            try
+            {
+                // LINQ query syntax
+                var data = from employee in _dbContext.Employees
+                           from department in _dbContext.Departments.Where(x => x.Id == employee.DepartmentId).DefaultIfEmpty() // Left Join
+                           from manager in _dbContext.Employees.Where(x => x.Id == employee.ManagerId).DefaultIfEmpty() // Left Join
+                           from lookup in _dbContext.Lookups.Where(x => x.Id == employee.PositionId).DefaultIfEmpty() // Left Join
+                                                                                                                      //where employee.Position == position
+                                                                                                                      //where (position == null || employee.Position == position) // if position is null, return all employees
+                           where
+                           (filterDto.PositionId == null || employee.PositionId == filterDto.PositionId) &&
+                                 (filterDto.EmployeeName == null || employee.Name.ToUpper().Contains(filterDto.EmployeeName.ToUpper())) &&
+                                 (filterDto.IsActive == null || employee.IsActive == filterDto.IsActive)
+                           //orderby employee.Age
+                           orderby employee.Id
+                           select new EmployeeDto
+                           {
+                               Id = employee.Id,
+                               Name = employee.Name,
+                               //Age = employee.Age,
+                               BirthDate = employee.BirthDate,
+                               //Position = employee.Position,
+                               PositionId = employee.PositionId,
+                               PositionName = lookup.Name,
+                               IsActive = employee.IsActive,
+                               StartDate = employee.StartDate,
+                               Phone = employee.Phone,
+                               ManagerId = employee.ManagerId,
+                               ManagerName = manager.Name,
+                               DepartmentId = employee.DepartmentId,
+                               DepartmentName = department.Name
+                           };
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("GetById")]
-        public IActionResult GetById([FromQuery]long id)
+        public IActionResult GetById([FromQuery] long id)
         {
-            // عشان يرجعلي فقط object بدون []
-            var employee = _dbContext.Employees.FirstOrDefault(x => x.Id == id); // firstOrDefault => بتجيب اول object او null اذا ما لقتو
-            if (employee == null)
+            try
             {
-                return NotFound($"Employee with Id {id} not found.");
-            }
-            var employeeDto = new EmployeeDto
-            {
-                Id = employee.Id,
-                Name = employee.Name,
-                //Age = employee.Age,
-                BirthDate = employee.BirthDate,
-                //Position = employee.Position,
-                PositionId = employee.PositionId,
-                PositionName = employee.Lookup.Name,
-                IsActive = employee.IsActive,
-                StartDate = employee.StartDate,
-                Phone = employee.Phone,
-                ManagerId = employee.ManagerId,
-                DepartmentId = employee.DepartmentId,
-                DepartmentName = employee.DepartmentRow.Name,
-                ManagerName = employee.Manager.Name
-            };
+                // عشان يرجعلي فقط object بدون []
+                var employee = _dbContext.Employees.FirstOrDefault(x => x.Id == id); // firstOrDefault => بتجيب اول object او null اذا ما لقتو
+                if (employee == null)
+                {
+                    return NotFound($"Employee with Id {id} not found.");
+                }
+                var employeeDto = new EmployeeDto
+                {
+                    Id = employee.Id,
+                    Name = employee.Name,
+                    //Age = employee.Age,
+                    BirthDate = employee.BirthDate,
+                    //Position = employee.Position,
+                    PositionId = employee.PositionId,
+                    PositionName = employee.Lookup.Name,
+                    IsActive = employee.IsActive,
+                    StartDate = employee.StartDate,
+                    Phone = employee.Phone,
+                    ManagerId = employee.ManagerId,
+                    DepartmentId = employee.DepartmentId,
+                    DepartmentName = employee.DepartmentRow.Name,
+                    ManagerName = employee.Manager.Name
+                };
 
-            return Ok(employeeDto);
+                return Ok(employeeDto);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("Add")]
         public IActionResult Add([FromBody] SaveEmployeeDto employeeDto)
         {
-            var user = new User()
+            try
             {
-                Id = 0, // Ignored
-                Username = $"{employeeDto.Name}_HR",
-                HashedPassword = BCrypt.Net.BCrypt.HashPassword($"{employeeDto.Name}@123"), // يعني رح اعمل hash لل password قبل ما احفظو بال database
-                IsAdmin = false
-            };
-            _dbContext.Add(user);
+                var user = new User()
+                {
+                    Id = 0, // Ignored
+                    Username = $"{employeeDto.Name}_HR",
+                    HashedPassword = BCrypt.Net.BCrypt.HashPassword($"{employeeDto.Name}@123"), // يعني رح اعمل hash لل password قبل ما احفظو بال database
+                    IsAdmin = false
+                };
+                _dbContext.Add(user);
 
-            var employee = new Employee()
+                var employee = new Employee()
+                {
+                    //Id = employees.Max(x => x.Id) + 1, // Auto increment Id
+                    //Id = (employees.LastOrDefault()?.Id ?? 0) + 1, // Auto increment Id
+                    Id = 0, // Ignored
+                    Name = employeeDto.Name,
+                    //Age = employeeDto.Age,
+                    BirthDate = employeeDto.BirthDate,
+                    //Position = employeeDto.Position,
+                    PositionId = employeeDto.PositionId,
+                    IsActive = employeeDto.IsActive,
+                    StartDate = employeeDto.StartDate,
+                    EndDate = employeeDto.EndDate,
+                    DepartmentId = employeeDto.DepartmentId,
+                    ManagerId = employeeDto.ManagerId,
+                    User = user
+                };
+
+                _dbContext.Employees.Add(employee);
+
+                _dbContext.SaveChanges();
+                return Ok();
+            }
+            catch (Exception ex)
             {
-                //Id = employees.Max(x => x.Id) + 1, // Auto increment Id
-                //Id = (employees.LastOrDefault()?.Id ?? 0) + 1, // Auto increment Id
-                Id = 0, // Ignored
-                Name = employeeDto.Name,
-                //Age = employeeDto.Age,
-                BirthDate = employeeDto.BirthDate,
-                //Position = employeeDto.Position,
-                PositionId = employeeDto.PositionId,
-                IsActive = employeeDto.IsActive,
-                StartDate = employeeDto.StartDate,
-                EndDate = employeeDto.EndDate,
-                DepartmentId = employeeDto.DepartmentId,
-                ManagerId = employeeDto.ManagerId,
-                User = user
-            };
-
-            _dbContext.Employees.Add(employee);
-
-            _dbContext.SaveChanges();
-            return Ok();
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("Update")]
         public IActionResult Update([FromBody] SaveEmployeeDto employeeDto)
         {
-            var employee = _dbContext.Employees.FirstOrDefault(x => x.Id == employeeDto.Id);
-            if(employee == null)
+            try
             {
-                return BadRequest("Employee not found."); // 400
+                var employee = _dbContext.Employees.FirstOrDefault(x => x.Id == employeeDto.Id);
+                if (employee == null)
+                {
+                    return BadRequest("Employee not found."); // 400
+                }
+                employee.Name = employeeDto.Name;
+                //employee.Age = employeeDto.Age;
+                employee.BirthDate = employeeDto.BirthDate;
+                //employee.Position = employeeDto.Position;
+                employee.PositionId = employeeDto.PositionId;
+                employee.IsActive = employeeDto.IsActive;
+                employee.StartDate = employeeDto.StartDate;
+                employee.EndDate = employeeDto.EndDate;
+                employee.DepartmentId = employeeDto.DepartmentId;
+                employee.ManagerId = employeeDto.ManagerId;
+
+                _dbContext.SaveChanges();
+
+                return Ok();
             }
-            employee.Name = employeeDto.Name;
-            //employee.Age = employeeDto.Age;
-            employee.BirthDate = employeeDto.BirthDate;
-            //employee.Position = employeeDto.Position;
-            employee.PositionId = employeeDto.PositionId;
-            employee.IsActive = employeeDto.IsActive;
-            employee.StartDate = employeeDto.StartDate;
-            employee.EndDate = employeeDto.EndDate;
-            employee.DepartmentId = employeeDto.DepartmentId;
-            employee.ManagerId = employeeDto.ManagerId;
-
-            _dbContext.SaveChanges();
-
-            return Ok();
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("Delete")]
-        public IActionResult Delete([FromQuery]long id)
+        public IActionResult Delete([FromQuery] long id)
         {
-            var employee = _dbContext.Employees.FirstOrDefault(x => x.Id == id);
-            if (employee == null)
+            try
             {
-                return BadRequest("Employee not found."); // 400
-            }
-            _dbContext.Employees.Remove(employee);
-            _dbContext.SaveChanges();
+                var employee = _dbContext.Employees.FirstOrDefault(x => x.Id == id);
+                if (employee == null)
+                {
+                    return BadRequest("Employee not found."); // 400
+                }
+                _dbContext.Employees.Remove(employee);
+                _dbContext.SaveChanges();
 
-            return Ok($"Employee with Id {id} deleted successfully.");
+                return Ok($"Employee with Id {id} deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

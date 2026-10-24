@@ -24,23 +24,30 @@ namespace HR.Controllers
         [HttpPost("Login")]
         public IActionResult Login([FromBody] LoginDto loginDto)
         {
-            // ToUppter => يعني لو دخلت admin او ADMIN او AdMiN رح يرجعلي نفس ال user
-            var user = _dbContext.Users.FirstOrDefault(u => u.Username.ToUpper() == loginDto.Username.ToUpper()); // يعني لو لقيت ال user اللي اسمه زي اللي دخلها
-            if(user == null)
+            try
             {
-                return BadRequest("Invalid username or password");
-            }
+                // ToUppter => يعني لو دخلت admin او ADMIN او AdMiN رح يرجعلي نفس ال user
+                var user = _dbContext.Users.FirstOrDefault(u => u.Username.ToUpper() == loginDto.Username.ToUpper()); // يعني لو لقيت ال user اللي اسمه زي اللي دخلها
+                if (user == null)
+                {
+                    return BadRequest("Invalid username or password");
+                }
 
-            // Check Password
-            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.HashedPassword); // يعني لو ال password اللي دخلها زي اللي مخزنه بال database
-            if(!isPasswordValid)
+                // Check Password
+                bool isPasswordValid = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.HashedPassword); // يعني لو ال password اللي دخلها زي اللي مخزنه بال database
+                if (!isPasswordValid)
+                {
+                    return BadRequest("Invalid username or password");
+                }
+
+                var token = GenerateJwtToken(user);
+
+                return Ok(token);
+            }
+            catch (Exception ex)
             {
-                return BadRequest("Invalid username or password");
+                return StatusCode(500, "An internal server error occurred.");
             }
-
-            var token = GenerateJwtToken(user);
-
-            return Ok(token);
         }
 
         private string GenerateJwtToken(User user)
