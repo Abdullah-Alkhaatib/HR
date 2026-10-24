@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/Employees")] // Data annotation => يعني انو كل ال API routes رح تبدا ب api/Employees
     [ApiController] // Data annotation
     public class EmployeesController : ControllerBase
@@ -113,6 +113,13 @@ namespace HR.Controllers
                     HashedPassword = BCrypt.Net.BCrypt.HashPassword($"{employeeDto.Name}@123"), // يعني رح اعمل hash لل password قبل ما احفظو بال database
                     IsAdmin = false
                 };
+
+                var _user = _dbContext.Users.FirstOrDefault(x => x.Username.ToUpper() == user.Username.ToUpper());
+                if(_user != null)
+                {
+                    return BadRequest("Cannot Add This Emplpyee : The Username Already Exists Please Select Another Name.");
+                };
+
                 _dbContext.Add(user);
 
                 var employee = new Employee()
