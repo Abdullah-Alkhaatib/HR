@@ -1,0 +1,28 @@
+<!-- <div class="title">
+    Title: {{ title }}
+</div>
+
+<div class="title">
+    Number: {{ number }}
+</div>
+
+<div class="title">
+    Boolean: {{ bool }}
+</div>
+
+<div class="title">
+    Array: {{ arr }}
+</div> -->
+
+@for (student of stu; track $index) {
+    <div>
+        <span>#{{ $index + 1 }}</span>
+        <span style="margin-right: 10px;" [ngClass]="{ 'passed': student.mark > 50, 'failed': student.mark <= 50 }">{{ student.name }}</span>
+        <span style="margin-right: 10px;" [ngStyle]="{'color': student.mark > 50 ? 'green' : 'red', 'font-size': student.mark > 50 ? '15px' : '13px' }">{{ student.mark }}%</span>
+        @if (student.mark > 50) {
+            <span style="margin-right: 10px">Passed</span>
+        } @else {
+            <span style="margin-right: 10px">Failed</span>
+        }
+    </div>
+}
