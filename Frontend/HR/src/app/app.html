@@ -15,10 +15,10 @@
 </div> -->
 
 @for (student of stu; track $index) {
-    <div>
+    <div class="student" appRandomColor>
         <span>#{{ $index + 1 }}</span>
-        <span style="margin-right: 10px;" [ngClass]="{ 'passed': student.mark > 50, 'failed': student.mark <= 50 }">{{ student.name }}</span>
-        <span style="margin-right: 10px;" [ngStyle]="{'color': student.mark > 50 ? 'green' : 'red', 'font-size': student.mark > 50 ? '15px' : '13px' }">{{ student.mark }}%</span>
+        <span style="margin-right: 10px;" [class]="student.mark > 50 ? 'passed' : 'failed'">{{ student.name }}</span>
+        <span style="margin-right: 10px;" [style]="student.mark > 50 ? { 'color': 'green', 'font-size': '15px' } : { 'color': 'red', 'font-size': '13px' }">{{ student.mark }}%</span>
         @if (student.mark > 50) {
             <span style="margin-right: 10px">Passed</span>
         } @else {

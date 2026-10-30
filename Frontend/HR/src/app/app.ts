@@ -1,10 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NgClass, NgStyle } from '@angular/common';
+import { RandomColor } from './directives/random-color';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({ // Decorator
   selector: 'app-root',
-  imports: [RouterOutlet, NgClass, NgStyle],
+  standalone: true,
+  imports: [RouterOutlet, RandomColor, ReactiveFormsModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
