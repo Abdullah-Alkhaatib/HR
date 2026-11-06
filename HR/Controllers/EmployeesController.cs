@@ -4,6 +4,8 @@ using HR.Model;
 using HR.DTOs.Employees;
 using HR.DTOs.Employees;
 using Microsoft.AspNetCore.Authorization;
+using HR.DTOs.Shared;
+using HR.Enums;
 
 namespace HR.Controllers
 {
@@ -20,7 +22,7 @@ namespace HR.Controllers
             _dbContext = dbContext;
         }
 
-        [Authorize(Roles = "HR, Admin")]
+        //[Authorize(Roles = "HR, Admin")]
         [HttpGet("GetAll")] // Data annotation => يعني انو هذا ال method رح يكون GET request]
         public IActionResult GetAll([FromQuery] FilterEmployeeDto filterDto) // Query parameter, Position is optional parameter
         {
@@ -38,7 +40,7 @@ namespace HR.Controllers
                                  (filterDto.EmployeeName == null || employee.Name.ToUpper().Contains(filterDto.EmployeeName.ToUpper())) &&
                                  (filterDto.IsActive == null || employee.IsActive == filterDto.IsActive)
                            //orderby employee.Age
-                           orderby employee.Id
+                           orderby employee.Id descending
                            select new EmployeeDto
                            {
                                Id = employee.Id,
@@ -130,6 +132,7 @@ namespace HR.Controllers
                     Name = employeeDto.Name,
                     //Age = employeeDto.Age,
                     BirthDate = employeeDto.BirthDate,
+                    Phone = employeeDto.Phone,
                     //Position = employeeDto.Position,
                     PositionId = employeeDto.PositionId,
                     IsActive = employeeDto.IsActive,
@@ -167,6 +170,7 @@ namespace HR.Controllers
                 //employee.Position = employeeDto.Position;
                 employee.PositionId = employeeDto.PositionId;
                 employee.IsActive = employeeDto.IsActive;
+                employee.Phone = employeeDto.Phone;
                 employee.StartDate = employeeDto.StartDate;
                 employee.EndDate = employeeDto.EndDate;
                 employee.DepartmentId = employeeDto.DepartmentId;
@@ -192,6 +196,13 @@ namespace HR.Controllers
                 {
                     return BadRequest("Employee not found."); // 400
                 }
+
+                var employeedAssociate = _dbContext.Employees.FirstOrDefault(x => x.ManagerId == id); // Employee is manager
+                if (employeedAssociate != null)
+                {
+                    return BadRequest("Managers with assigned employees cannot be deleted.");
+                }
+
                 _dbContext.Employees.Remove(employee);
                 _dbContext.SaveChanges();
 
@@ -201,6 +212,25 @@ namespace HR.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        // get managers
+        [HttpGet("GetManagersList")]
+        public IActionResult GetManagers([FromQuery] long? employeeId)
+        {
+            var data = from emp in _dbContext.Employees
+                       from pos in _dbContext.Lookups.Where(x => x.Id == emp.PositionId)
+                       where emp.IsActive &&
+                             emp.Id != employeeId &&
+                             pos.MajorCode == (int)LookupMajorCodes.EmployeePosition &&
+                             pos.MinorCode == (int)PositionsMinorCodes.Manager
+                       select new ListDto
+                       {
+                           Id = emp.Id,
+                           Name = emp.Name
+                       };
+
+            return Ok(data);
         }
     }
 }

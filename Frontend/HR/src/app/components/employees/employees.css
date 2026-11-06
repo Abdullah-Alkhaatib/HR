@@ -6,3 +6,17 @@
 .table-title{
     flex-grow: 1;
 }
+
+.align-end{
+    align-items: flex-end;
+}
+
+.invalid-input {
+    border-color: red;
+}
+
+.employee-image {
+    width: 4rem;
+    height: 3rem;
+    border-radius: 2rem;
+}

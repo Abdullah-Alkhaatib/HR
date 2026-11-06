@@ -28,6 +28,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular", builder =>
+    {
+        //builder.WithOrigins("http://localhost:4200") // Allow requests from this origin
+
+        builder.AllowAnyOrigin()
+               .AllowAnyHeader()
+               .AllowAnyMethod();
+    });
+});
+
 // Add DbContext
 builder.Services.AddDbContext<HrDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("HrContext"))// HrContext => اللي ب appsettings.json
@@ -42,6 +54,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowAngular"); // Enable CORS for Angular application
 
 app.UseHttpsRedirection();
 
