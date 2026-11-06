@@ -14,5 +14,7 @@
         public DateTime? EndDate { get; set; }
         public long? DepartmentId { get; set; }
         public long? ManagerId { get; set; }
+        public IFormFile? Image { get; set; }
+        public bool? IsImage { get; set; }
     }
 }

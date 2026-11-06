@@ -61,6 +61,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseStaticFiles(); // Alow to serve files
+
 app.MapControllers();
 
 app.Run();

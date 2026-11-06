@@ -22,6 +22,7 @@ import { ToastrService } from '@relynn/ngx-toastr';
 export class Employees implements OnInit {
 
   @ViewChild('closeButton') closeButton: ElementRef | undefined;
+  @ViewChild('empImageInput') empImageInput !: ElementRef;
 
   employees: Employee[] = [];
 
@@ -60,7 +61,8 @@ export class Employees implements OnInit {
     Manager: new FormControl(null),
     Position: new FormControl(null, [Validators.required]),
     IsActive: new FormControl(true, [Validators.required]),
-    Image: new FormControl(null)
+    Image: new FormControl(null),
+    IsImage: new FormControl(false)
   });
 
   searchFilterForm: FormGroup = new FormGroup({
@@ -124,7 +126,9 @@ export class Employees implements OnInit {
           departmentId: x.departmentId,
           departmentName: x.departmentName,
           managerId: x.managerId,
-          managerName: x.managerName
+          managerName: x.managerName,
+          imagePath: x.imagePath ? x.imagePath.replaceAll('\\', '/') : "assets/images/default-picture.png",
+          isImage: x.imagePath ? true : false
         }));
 
         this.cdr.markForCheck();
@@ -219,7 +223,8 @@ export class Employees implements OnInit {
       departmentId: this.employeeForm.value.Department,
       managerId: this.employeeForm.value.Manager,
       positionId: this.employeeForm.value.Position,
-      image: this.employeeForm.value.Image
+      image: this.employeeForm.value.Image,
+      isImage: this.employeeForm.value.IsImage
     }
 
     if (!this.employeeForm.value.Id) { // Add new employee
@@ -246,10 +251,17 @@ export class Employees implements OnInit {
     this.clearEmployeeForm();
   }
 
+  clearInputImage() {
+    this.empImageInput.nativeElement.value = '';
+  }
+
   clearEmployeeForm() {
     this.employeeForm.reset({
-      IsActive: true
+      IsActive: true,
+      IsImage: false
     });
+
+    this.clearInputImage();
   }
 
   editEmployee(id: number) {
@@ -266,6 +278,7 @@ export class Employees implements OnInit {
         Manager: employee?.managerId,
         Position: employee?.positionId,
         IsActive: employee?.isActive,
+        IsImage: employee?.isImage,
       });
     }
   }
@@ -300,6 +313,12 @@ export class Employees implements OnInit {
 
     this.employeeIdToBeDeleted = null;
     this.showConfirmationDialog = false;
+  }
+
+  removeImage() {
+    this.employeeForm.patchValue({
+      IsImage: false
+    });
   }
 
   loadSaveDialog(employeeId?: number) {

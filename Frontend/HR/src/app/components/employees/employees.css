@@ -1,13 +1,13 @@
-.table-header{
+.table-header {
     display: flex;
     text-items: center;
 }
 
-.table-title{
+.table-title {
     flex-grow: 1;
 }
 
-.align-end{
+.align-end {
     align-items: flex-end;
 }
 
@@ -19,4 +19,21 @@
     width: 4rem;
     height: 3rem;
     border-radius: 2rem;
+}
+
+.remove-image-icon {
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: red;
+    margin: 0px 0.3rem;
+}
+
+.emp-img{
+    width: 3rem;
+    height: 3rem;
+    /* background-image: url('https://localhost:44370\Attachments\EmployeeImages\a6a0398e-34ba-4275-a66d-b8de3b7458b4.jpg'); */
+    display: inline-block;
+    background-size: cover;
+    background-position: center;
+    border-radius: 50%;
 }

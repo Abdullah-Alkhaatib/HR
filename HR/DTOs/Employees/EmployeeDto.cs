@@ -17,5 +17,7 @@
         public string? ManagerName { get; set; } // Foreign Key
         public long? PositionId { get; set; } // Foreign Key
         public string? PositionName { get; set; } // Foreign Key
+
+        public string? ImagePath { get; set; }
     }
 }
