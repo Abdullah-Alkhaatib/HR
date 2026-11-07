@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { RandomColor } from './directives/random-color';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Employees } from './components/employees/employees';
@@ -13,5 +13,13 @@ import { Departments } from './components/departments/departments';
   styleUrl: './app.css'
 })
 export class App {
-  
+
+  constructor(private router: Router) {
+
+  }
+
+  showNavBar(): boolean {
+    return this.router.url !== '/login';
+  }
+
 }

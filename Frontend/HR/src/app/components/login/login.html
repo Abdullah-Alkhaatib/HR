@@ -1,0 +1,32 @@
+<div class="main">
+    <div class="container-fluid form">
+
+        <div class="header">
+            <span>HR</span>
+            <span>Management System</span>
+        </div>
+
+        <div class="content" [formGroup]="loginForm">
+            <div class="mb-3">
+                <!-- username -->
+                <label for="usernameControl" class="form-label">Username</label>
+                <input type="text" class="form-control" id="usernameControl" placeholder="Enter your username"
+                    formControlName="Username"
+                    [class.invalid-input]="loginForm.get('Username')?.invalid && loginForm.get('Username')?.touched">
+            </div>
+            <div>
+                <!-- password -->
+                <label for="passwordControl" class="form-label">Password</label>
+                <input type="password" class="form-control" id="passwordControl" placeholder="Enter you password"
+                    formControlName="Password"
+                    [class.invalid-input]="loginForm.get('Password')?.invalid && loginForm.get('Password')?.touched">
+            </div>
+        </div>
+
+        <div class="actions mt-3">
+            <button type="submit" class="btn btn-secondary" (click)="login()">
+                Login
+            </button>
+        </div>
+    </div>
+</div>

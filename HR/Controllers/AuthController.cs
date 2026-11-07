@@ -42,7 +42,7 @@ namespace HR.Controllers
 
                 var token = GenerateJwtToken(user);
 
-                return Ok(token);
+                return Ok(new { token = token });
             }
             catch (Exception ex)
             {

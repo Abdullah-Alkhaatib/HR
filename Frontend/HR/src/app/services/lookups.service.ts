@@ -5,19 +5,19 @@ import { Observable } from 'rxjs';
 @Injectable({
     providedIn: 'root'
 })
-export class LookupsService { 
+export class LookupsService {
 
     apiUrl: string = 'https://localhost:44370/api/Lookups';
 
-    constructor(private http: HttpClient){
+    constructor(private http: HttpClient) {
 
     }
 
     // Get By Major Code
-    getByMajorCode(majorCode: number){
+    getByMajorCode(majorCode: number) {
         let params = new HttpParams();
         params = params.set("majorCode", majorCode);
-        return this.http.get(this.apiUrl + '/GetByMajorCode', { params } );
+        return this.http.get(this.apiUrl + '/GetByMajorCode', { params });
     }
 
 }

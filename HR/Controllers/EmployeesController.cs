@@ -3,10 +3,11 @@ using HR.Model;
 using HR.DTOs.Employees;
 using HR.DTOs.Shared;
 using HR.Enums;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HR.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/Employees")] // Data annotation => يعني انو كل ال API routes رح تبدا ب api/Employees
     [ApiController] // Data annotation
     public class EmployeesController : ControllerBase
