@@ -6,13 +6,17 @@
             <span>Management System</span>
         </div>
 
-        <div class="content" [formGroup]="loginForm">
+        <form class="content" [formGroup]="loginForm" (ngSubmit)="login()">
             <div class="mb-3">
                 <!-- username -->
                 <label for="usernameControl" class="form-label">Username</label>
                 <input type="text" class="form-control" id="usernameControl" placeholder="Enter your username"
                     formControlName="Username"
                     [class.invalid-input]="loginForm.get('Username')?.invalid && loginForm.get('Username')?.touched">
+
+                @if (loginForm.get('Username')?.invalid && loginForm.get('Username')?.touched) {
+                <small class="text-danger">Username is required</small>
+                }
             </div>
             <div>
                 <!-- password -->
@@ -20,13 +24,24 @@
                 <input type="password" class="form-control" id="passwordControl" placeholder="Enter you password"
                     formControlName="Password"
                     [class.invalid-input]="loginForm.get('Password')?.invalid && loginForm.get('Password')?.touched">
+                @if (loginForm.get('Password')?.invalid && loginForm.get('Password')?.touched) {
+                <small class="text-danger">Password is required</small>
+                }
             </div>
-        </div>
 
-        <div class="actions mt-3">
-            <button type="submit" class="btn btn-secondary" (click)="login()">
-                Login
-            </button>
+            <div class="actions mt-3">
+                <button type="submit" class="btn btn-secondary">
+                    Login
+                </button>
+            </div>
+            
+        </form>
+
+        @if(showErrorMessage){
+        <div class="err-message">
+            * {{errorMessage}}
         </div>
+        }
+
     </div>
 </div>

@@ -22,4 +22,9 @@ export class App {
     return this.router.url !== '/login';
   }
 
+  signOut() {
+    localStorage.removeItem('token');
+    this.router.navigate(['/login']);
+  }
+
 }

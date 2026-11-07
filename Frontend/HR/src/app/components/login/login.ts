@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { ToastrService } from '@relynn/ngx-toastr';
+import { Router } from '@angular/router';
 
 @Component({
   imports: [ReactiveFormsModule],
@@ -10,7 +12,13 @@ import { AuthService } from '../../services/auth.service';
 })
 export class Login {
 
-  constructor(private _authService: AuthService) { }
+  showErrorMessage: boolean = false;
+  errorMessage: string = '';
+
+  constructor(private _authService: AuthService,
+    private _toastr: ToastrService,
+    private _router: Router
+  ) { }
 
   loginForm: FormGroup = new FormGroup({
     Username: new FormControl(null, [Validators.required]),
@@ -18,6 +26,14 @@ export class Login {
   });
 
   login() {
+    this.showErrorMessage = false;
+    this.errorMessage = '';
+
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+
     let loginObj = {
       UserName: this.loginForm.value.Username,
       Password: this.loginForm.value.Password,
@@ -27,9 +43,14 @@ export class Login {
       next: (res: any) => {
         // console.log(res); // token
         localStorage.setItem('token', res.token);
+        localStorage.setItem('role', res.role);
+        this.showErrorMessage = false;
+        this._router.navigate(['/']);
       },
       error: (err) => {
-        console.log(err.error.message ?? err.error ?? "Unexpected Error");
+        this.showErrorMessage = true;
+        this.errorMessage = err.error.message ?? err.error ?? "Unexpected Error";
+        this._toastr.error(this.errorMessage, 'Login Failed');
       }
     });
   }

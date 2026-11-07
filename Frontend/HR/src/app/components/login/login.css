@@ -10,7 +10,7 @@
     background: white;
     margin: 0 30%;
     height: 70vh;
-    border-radius: 13   px;
+    border-radius: 13 px;
 }
 
 .header {
@@ -28,4 +28,9 @@
 
 .btn {
     width: 100%;
+}
+
+.err-message {
+    color: red;
+    margin: 0.5rem 0;
 }

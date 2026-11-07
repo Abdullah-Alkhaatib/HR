@@ -45,6 +45,8 @@ export class Employees implements OnInit {
 
   managers: List[] = [];
 
+  addButtonDisabled: boolean = false;
+
   employeeStatusList: List[] = [
     { id: null, name: 'Select Status' },
     { id: true, name: 'Active' },
@@ -93,6 +95,7 @@ export class Employees implements OnInit {
   ngOnInit(): void {
     this.loadEmployees();
     this.loadPositionsList();
+    this.checkRole();
   }
 
   ngOnDestroy(): void {
@@ -326,6 +329,16 @@ export class Employees implements OnInit {
     this.loadManagersList(employeeId);
     this.loadDepartmentsList();
     this.loadPositionsList();
+  }
+
+  checkRole() {
+    let role = localStorage.getItem('role');
+    this.addButtonDisabled = false;
+
+    if (role?.toUpperCase() !== 'ADMIN' && role?.toUpperCase() !== 'HR') {
+      this.addButtonDisabled = true;
+      // this._toastr.error('You do not have permission to access this page.', 'Access Denied');
+    }
   }
 
 }

@@ -19,5 +19,7 @@
         public string? PositionName { get; set; } // Foreign Key
 
         public string? ImagePath { get; set; }
+        
+        public long? UserId { get; set; }
     }
 }

@@ -4,6 +4,7 @@ using HR.DTOs.Employees;
 using HR.DTOs.Shared;
 using HR.Enums;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace HR.Controllers
 {
@@ -24,12 +25,15 @@ namespace HR.Controllers
             _config = config;
         }
 
-        //[Authorize(Roles = "HR, Admin")]
         [HttpGet("GetAll")] // Data annotation => يعني انو هذا ال method رح يكون GET request]
         public IActionResult GetAll([FromQuery] FilterEmployeeDto filterDto) // Query parameter, Position is optional parameter
         {
             try
             {
+                // Extracted from token
+                var role = User.FindFirst(ClaimTypes.Role)?.Value; // Admin, HR, Manager, Developer
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; // 1, 2, 3, 4, 5
+
                 // LINQ query syntax
                 var data = from employee in _dbContext.Employees
                            from department in _dbContext.Departments.Where(x => x.Id == employee.DepartmentId).DefaultIfEmpty() // Left Join
@@ -59,8 +63,15 @@ namespace HR.Controllers
                                ManagerName = manager.Name,
                                DepartmentId = employee.DepartmentId,
                                DepartmentName = department.Name,
-                               ImagePath = employee.ImagePath != null ? Path.Combine(_config["BaseUrl"], employee.ImagePath) : ""
+                               ImagePath = employee.ImagePath != null ? Path.Combine(_config["BaseUrl"], employee.ImagePath) : "",
+                               UserId = employee.UserId
                            };
+
+                if(role?.ToUpper() != "ADMIN" && role?.ToUpper() != "HR")
+                {
+                    data = data.Where(x => x.UserId == long.Parse(userId)); // يعني اذا ال user مش admin او hr رح يرجعلي بس ال user اللي عامل login
+                }
+
                 return Ok(data);
             }
             catch (Exception ex)
@@ -106,6 +117,7 @@ namespace HR.Controllers
             }
         }
 
+        [Authorize(Roles = "HR, Admin")]
         [HttpPost("Add")]
         public IActionResult Add([FromForm] SaveEmployeeDto employeeDto)
         {

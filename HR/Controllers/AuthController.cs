@@ -42,7 +42,7 @@ namespace HR.Controllers
 
                 var token = GenerateJwtToken(user);
 
-                return Ok(new { token = token });
+                return Ok(token);
             }
             catch (Exception ex)
             {
@@ -50,21 +50,26 @@ namespace HR.Controllers
             }
         }
 
-        private string GenerateJwtToken(User user)
+        private TokenDto GenerateJwtToken(User user)
         {
+            string role;
             var claims = new List<Claim>(); // Claims => يعني معلومات عن ال user
             // key -> value
             claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())); // يعني اسم ال user
             claims.Add(new Claim(ClaimTypes.Name, user.Username)); // يعني اسم ال user
 
+            // HR, Manager, Developer, Admin => Roles
             if (user.IsAdmin)
             {
                 claims.Add(new Claim(ClaimTypes.Role, "Admin")); // يعني اذا ال user admin رح اعطيه صلاحيات admin
+                role = "Admin";
             }
             else
             {
                 var employee = _dbContext.Employees.Include(x => x.Lookup).FirstOrDefault(e => e.UserId == user.Id); // يعني لو ال user مش admin رح اعطيه صلاحيات employee
                 claims.Add(new Claim(ClaimTypes.Role, employee.Lookup.Name)); // يعني اذا ال user مش admin رح اعطيه صلاحيات employee
+
+                role = employee.Lookup.Name; // يعني اذا ال user مش admin رح اعطيه صلاحيات employee
             }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SKDJFSJKJDSJK!!2@@@#EJSJD872DKFSKDKK"));
@@ -78,7 +83,11 @@ namespace HR.Controllers
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.WriteToken(tokenSettings); // يعني رح ارجعلي ال token
-            return token;
+            return new TokenDto
+            {
+                Token = token,
+                Role = role
+            };
         }
     }
 }
