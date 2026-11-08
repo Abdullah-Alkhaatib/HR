@@ -135,6 +135,13 @@ namespace HR.Controllers
                 {
                     return NotFound("Department does not exist");
                 }
+
+                var departmentAssociate = _dbContext.Employees.FirstOrDefault(x => x.DepartmentId == id);// Check if the department is associated with any employees
+                if (departmentAssociate != null)
+                {
+                    return BadRequest("Department with assigned employees cannot be deleted.");
+                }
+
                 _dbContext.Departments.Remove(department);
                 _dbContext.SaveChanges();
 

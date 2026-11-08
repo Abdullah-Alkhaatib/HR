@@ -1,15 +1,4 @@
-.table-header {
-    display: flex;
-    text-items: center;
-}
 
-.table-title {
-    flex-grow: 1;
-}
-
-.align-end {
-    align-items: flex-end;
-}
 
 .employee-image {
     width: 4rem;

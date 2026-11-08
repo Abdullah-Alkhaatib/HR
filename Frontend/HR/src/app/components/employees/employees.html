@@ -84,7 +84,7 @@
                     <tr>
                         <td>{{ i + 1 }}</td>
                         <td>
-                            <span class="emp-img" [style.background-image]=" `url(${employee.imagePath})`" ></span>
+                            <span class="emp-img" [style.background-image]=" `url(${employee.imagePath})`"></span>
                             <!-- <img [src]="employee.imagePath" alt="Employee Image" class="employee-image"> -->
                         </td>
                         <td>{{ employee.name }}</td>
@@ -100,15 +100,17 @@
                         <td>{{ employee.departmentName }}</td>
                         <td>{{ employee.managerName }}</td>
                         <td>
-                            <button type="button" class="btn btn-outline-success ms-2 me-2" data-bs-toggle="modal"
-                                data-bs-target="#saveEmployeeModal" (click)="editEmployee(employee.id)">
-                                <i class="bi bi-pencil-fill"></i>
-                            </button>
+                            <div class="justify-content-end">
+                                <button type="button" class="btn btn-outline-success ms-2 me-2" data-bs-toggle="modal"
+                                    data-bs-target="#saveEmployeeModal" (click)="editEmployee(employee.id)">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
 
-                            <button type="button" class="btn btn-outline-danger mx-2 my-2" data-bs-toggle="modal"
-                                (click)="OpenConfirmationDialog(employee.id)">
-                                <i class="bi bi-trash-fill"></i>
-                            </button>
+                                <button type="button" class="btn btn-outline-danger mx-2 my-2" data-bs-toggle="modal"
+                                    (click)="OpenConfirmationDialog(employee.id)">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     }
