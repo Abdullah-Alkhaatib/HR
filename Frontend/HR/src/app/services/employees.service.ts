@@ -71,4 +71,11 @@ export class EmployeesService {
         params = params.set("id", id);
         return this.http.delete(this.apiUrl + '/Delete', { params });
     }
+
+    // getEmployeeList
+    getEmployeesList(currentUserOnly?: boolean) {
+        let params = new HttpParams();
+        params = params.set("CurrentUserOnly", currentUserOnly ?? "");
+        return this.http.get(this.apiUrl + '/GetEmployeesList', { params });
+    }
 }

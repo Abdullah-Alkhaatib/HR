@@ -1,0 +1,194 @@
+<div class="container-fluid">
+
+    <div class="card">
+
+        <div class="card-header">
+            <h5>
+                <i class="bi bi-funnel-fill"></i>
+                Filter
+            </h5>
+        </div>
+
+        <div class="card-body">
+
+            <div [formGroup]="searchFilterForm">
+
+                <div class="row">
+
+                    <div class="col-lg-4 col-md-4 col-sm-12">
+                        <label for="typeControl" class="form-label">Type</label>
+                        <select class="form-select" aria-label="Default select example" formControlName="TypeId"
+                            id="typeControl"
+                            [class.invalid-input]="searchFilterForm.get('TypeId')?.invalid && searchFilterForm.get('TypeId')?.touched">
+                            @for (item of vacationTypesList; track item) {
+                            <option [ngValue]="item.id">{{ item.name}}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-lg-4 col-md-4 col-sm-12">
+                        <label for="employeeControl" class="form-label">Employee</label>
+                        <select class="form-select" aria-label="Default select example" formControlName="EmployeeId"
+                            id="employeeControl"
+                            [class.invalid-input]="searchFilterForm.get('EmployeeId')?.invalid && searchFilterForm.get('EmployeeId')?.touched">
+                            @for (item of employeesList; track item) {
+                            <option [ngValue]="item.id">{{ item.name}}</option>
+                            }
+                        </select>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="text-end mt-2">
+                <button type="button" class="btn btn-secondary" (click)="loadVacations()">
+                    <i class="bi bi-search"></i>
+                    <span>Search</span>
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card mt-2">
+        <div class="card-header table-header">
+            <div class="table-title">
+                <h5>Vacations</h5>
+            </div>
+            <div>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal"
+                    data-bs-target="#saveVacationModal" (click)="loadSaveDialog()" [disabled]="addButtonDisabled">
+                    <i class="bi bi-building-fill-add"></i>
+                    <span>Add</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        @for (col of vacationsTableColumns; track col) {
+                        <th>{{ col }}</th>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @for (vacation of vacations | paginate: paginationConfig ;
+                    track vacation; let i = $index)
+                    {
+                    <tr>
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ vacation.employeeName }}</td>
+                        <td>{{ vacation.startDate | date:"dd/MM/yyyy" }}</td>
+                        <td>{{ vacation.endDate | date:"dd/MM/yyyy" }}</td>
+                        <td>{{ vacation.typeName }}</td>
+                        <td>{{ vacation.creationDate | date:"dd/MM/yyyy" }}</td>
+                        <td>{{ vacation.notes }}</td>
+
+                        <td>
+                            <div class="justify-content-end">
+                                <button [disabled]="addButtonDisabled" type="button"
+                                    class="btn btn-outline-success ms-2 me-2" data-bs-toggle="modal"
+                                    data-bs-target="#saveVacationModal" (click)="editVacation(vacation.id)">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+
+                                <button [disabled]="addButtonDisabled" type="button"
+                                    class="btn btn-outline-danger mx-2 my-2" data-bs-toggle="modal"
+                                    (click)="OpenConfirmationDialog(vacation.id)">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- component -->
+            <pagination-controls class="text-end" (pageChange)="changePage($event)">
+            </pagination-controls>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="modal modal-lg fade" id="saveVacationModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title" id="exampleModalLabel">Save Vacation</h1>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="vacationForm" (ngSubmit)="saveVacation()">
+                    <div class="row align-end">
+                        <div class="col-lg-4 col-md-4 col-sm-12 mb-2">
+                            <label for="startDateControl" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="startDateControl" placeholder="Start Date"
+                                formControlName="StartDate"
+                                [class.invalid-input]="vacationForm.get('StartDate')?.invalid && vacationForm.get('StartDate')?.touched">
+                        </div>
+
+                        <div class="col-lg-4 col-md-4 col-sm-12 mb-2">
+                            <label for="endDateControl" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="endDateControl" placeholder="End Date"
+                                formControlName="EndDate"
+                                [class.invalid-input]="vacationForm.get('EndDate')?.invalid && vacationForm.get('EndDate')?.touched">
+                        </div>
+
+                        <div class="col-lg-4 col-md-4 col-sm-12 mb-2">
+                            <label for="employeeControl" class="form-label">Employee</label>
+                            <select class="form-select" aria-label="Default select example" formControlName="EmployeeId"
+                                id="employeeControl"
+                                [class.invalid-input]="vacationForm.get('EmployeeId')?.invalid && vacationForm.get('EmployeeId')?.touched">
+                                @for (item of employeesList; track item) {
+                                <option [ngValue]="item.id">{{ item.name}}</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-lg-4 col-md-4 col-sm-12 mb-2">
+                            <label for="vacTypeControl" class="form-label">Type</label>
+                            <select class="form-select" aria-label="Default select example" formControlName="TypeId"
+                                id="vacTypeControl"
+                                [class.invalid-input]="vacationForm.get('TypeId')?.invalid && vacationForm.get('TypeId')?.touched">
+                                @for (item of vacationTypesList; track item) {
+                                <option [ngValue]="item.id">{{ item.name}}</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-12 mb-2">
+                            <label for="notesControl" class="form-label">Notes</label>
+                            <textarea class="form-control" id="notesControl" rows="2" placeholder="Notes"
+                                formControlName="Notes"></textarea>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" #closeButton>
+                            Close
+                        </button>
+                        <button type="submit" class="btn btn-primary" [disabled]="!vacationForm.valid">Save
+                            changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (showConfirmationDialog) {
+<app-confirmation-dialog [title]="deleteDialogTitle" [body]="deleteDialogBody"
+    (confirm)="confirmVacationDelete($event)"></app-confirmation-dialog>
+}

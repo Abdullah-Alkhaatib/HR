@@ -11,5 +11,7 @@
         public long TypeId { get; set; }
         public string TypeName { get; set; }
         public string? Notes { get; set; }
+
+        public long? UserId { get; set; }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using HR.DTOs.Vacations;
 using HR.Model;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Data;
+using System.Security.Claims;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HR.Controllers
 {
@@ -23,6 +25,10 @@ namespace HR.Controllers
         {
             try
             {
+                // Extracted from token
+                var role = User.FindFirst(ClaimTypes.Role)?.Value;
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                 var data = from vac in _dbContext.Vacations
                            from emp in _dbContext.Employees.Where(x => x.Id == vac.EmployeeId)
                            from lookup in _dbContext.Lookups.Where(x => x.Id == vac.TypeId)
@@ -38,8 +44,14 @@ namespace HR.Controllers
                                EndDate = vac.EndDate,
                                TypeId = vac.TypeId,
                                TypeName = lookup.Name,
-                               Notes = vac.Notes
+                               Notes = vac.Notes,
+                               UserId = emp.UserId
                            };
+
+                if(role?.ToUpper() != "ADMIN" && role?.ToUpper() != "HR")
+                {
+                    data = data.Where(x => x.UserId == long.Parse(userId));
+                }
 
                 return Ok(data);
             }
@@ -81,6 +93,14 @@ namespace HR.Controllers
         {
             try
             {
+                var role = User.FindFirst(ClaimTypes.Role)?.Value;
+                if(role?.ToUpper() != "ADMIN" && role?.ToUpper() != "HR")
+                {
+                    if (!isCuurentUser(saveVacationDto.EmployeeId))
+                    {
+                        return BadRequest("You cannot assign vacation to another employee.");
+                    }
+                }
                 var vacation = new Vacation()
                 {
                     Id = 0,
@@ -113,6 +133,16 @@ namespace HR.Controllers
                 {
                     return BadRequest($"Vacation Not Found.");
                 }
+
+                var role = User.FindFirst(ClaimTypes.Role)?.Value;
+                if(role?.ToUpper() != "ADMIN" && role?.ToUpper() != "HR")
+                {
+                    if (!isCuurentUser(vacation.EmployeeId))
+                    {
+                        return BadRequest("You cannot update vacation of another employee.");
+                    }
+                }
+
                 vacation.StartDate = saveVacationDto.StartDate;
                 vacation.EndDate = saveVacationDto.EndDate;
                 vacation.Notes = saveVacationDto.Notes;
@@ -138,6 +168,15 @@ namespace HR.Controllers
                 if (vacation == null)
                 {
                     return BadRequest($"Vacation Not Found.");
+                }
+
+                var role = User.FindFirst(ClaimTypes.Role)?.Value;
+                if(role?.ToUpper() != "ADMIN" && role?.ToUpper() != "HR")
+                {
+                    if (!isCuurentUser(vacation.EmployeeId))
+                    {
+                        return BadRequest("You cannot delete vacation of another employee.");
+                    }
                 }
 
                 _dbContext.Vacations.Remove(vacation);
@@ -174,6 +213,19 @@ namespace HR.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        private bool isCuurentUser(long employeeId)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var empUserId = _dbContext.Employees.FirstOrDefault(x => x.Id == employeeId)?.UserId;
+            if(empUserId == long.Parse(userId))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
