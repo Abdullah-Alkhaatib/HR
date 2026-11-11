@@ -364,4 +364,4 @@ FodyWeavers.xsd
 
 HR/wwwroot/Attachments/EmployeeImages
 
-appsettings.Development.json
+HR/appsettings.Development.json
