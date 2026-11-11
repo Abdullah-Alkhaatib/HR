@@ -5,6 +5,7 @@ using HR.DTOs.Shared;
 using HR.Enums;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using HR.Services;
 
 namespace HR.Controllers
 {
@@ -15,14 +16,16 @@ namespace HR.Controllers
     {
         private HrDbContext _dbContext;
         private IWebHostEnvironment _env;
-        private readonly IConfiguration _config; 
+        private readonly IConfiguration _config;
+        private readonly AttachmentService _attachmentService;
 
         // NuGet Package => Library
-        public EmployeesController(HrDbContext dbContext, IWebHostEnvironment env, IConfiguration config    )
+        public EmployeesController(HrDbContext dbContext, IWebHostEnvironment env, IConfiguration config, AttachmentService attachmentService)
         {
             _dbContext = dbContext;
             _env = env;
             _config = config;
+            _attachmentService = attachmentService;
         }
 
         [HttpGet("GetAll")] // Data annotation => يعني انو هذا ال method رح يكون GET request]
@@ -161,7 +164,7 @@ namespace HR.Controllers
 
                 if(employeeDto.Image != null)
                 {
-                    employee.ImagePath = UploadImage(employeeDto.Image);
+                    employee.ImagePath = _attachmentService.UploadImage(employeeDto.Image);
                 }
 
                 _dbContext.Employees.Add(employee);
@@ -199,7 +202,7 @@ namespace HR.Controllers
 
                 if(employeeDto.Image != null)
                 {
-                    employee.ImagePath = UploadImage(employeeDto.Image);
+                    employee.ImagePath = _attachmentService.UploadImage(employeeDto.Image);
                 }
                 else if (employeeDto.IsImage == false && employeeDto.Image == null)
                 {
@@ -281,33 +284,6 @@ namespace HR.Controllers
             });
 
             return Ok(employees);
-        }
-
-
-        private string UploadImage(IFormFile image)
-        {
-            //var folderPath = "C:\\Users\\abdul\\source\\repos\\HR\\Attachments\\EmployeeImages";
-            var imagesFolderPath = Path.Combine( "Attachments", "EmployeeImages");
-
-            var folderPath = Path.Combine( _env.WebRootPath, imagesFolderPath);
-            if (!Directory.Exists(folderPath))
-            {
-                // Create Folder
-                Directory.CreateDirectory(folderPath);
-            }
-
-            var fileExtension = Path.GetExtension(image.FileName); // .png .jpg .jpeg ...
-            var fileName = Guid.NewGuid() + fileExtension; // Generate unique file name => 1234-5678-90ab-cdefm + .png
-
-            var filePath = Path.Combine(folderPath, fileName);
-
-            var stream = new FileStream(filePath, FileMode.Create); // Create file
-            using (stream)
-            {
-                image.CopyTo(stream); // Copy image to file Steam
-            }
-
-            return Path.Combine(imagesFolderPath, fileName);
         }
     }
 }
