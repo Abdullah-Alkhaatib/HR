@@ -1,4 +1,6 @@
-﻿namespace HR.DTOs.Employees
+﻿using Microsoft.AspNetCore.Http;
+
+namespace HR.DTOs.Employees
 {
     public class SaveEmployeeDto
     {

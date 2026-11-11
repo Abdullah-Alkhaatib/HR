@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using HR.Services;
+using HR.Infra.Services;
+using HR.Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,8 +47,8 @@ builder.Services.AddDbContext<HrDbContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("HrContext"))// HrContext => اللي ب appsettings.json
 );
 
-// Add AttachmentService
-builder.Services.AddScoped<AttachmentService>();
+// Add External Services
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 var app = builder.Build();
 

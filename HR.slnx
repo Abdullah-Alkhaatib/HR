@@ -1,3 +1,6 @@
 <Solution>
-  <Project Path="HR/HR.csproj" />
+  <Project Path="HR.Application/HR.Application.csproj" Id="19a94032-6495-43a5-98ea-06b816414874" />
+  <Project Path="HR.Domain/HR.Domain.csproj" Id="a13145b0-442a-4853-bb52-fe031ef997f5" />
+  <Project Path="HR.Infra/HR.Infra.csproj" Id="f45bcb5a-2999-425e-8705-d752d179abf9" />
+  <Project Path="HR/HR.Api.csproj" />
 </Solution>

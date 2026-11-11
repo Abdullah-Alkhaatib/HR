@@ -5,11 +5,12 @@ using HR.DTOs.Shared;
 using HR.Enums;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using HR.Services;
+using HR.Infra.Services;
+using HR.Application.Interfaces;
 
 namespace HR.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/Employees")] // Data annotation => يعني انو كل ال API routes رح تبدا ب api/Employees
     [ApiController] // Data annotation
     public class EmployeesController : ControllerBase
@@ -17,15 +18,15 @@ namespace HR.Controllers
         private HrDbContext _dbContext;
         private IWebHostEnvironment _env;
         private readonly IConfiguration _config;
-        private readonly AttachmentService _attachmentService;
+        private readonly IEmployeeService _employeeService;
 
         // NuGet Package => Library
-        public EmployeesController(HrDbContext dbContext, IWebHostEnvironment env, IConfiguration config, AttachmentService attachmentService)
+        public EmployeesController(HrDbContext dbContext, IWebHostEnvironment env, IConfiguration config, IEmployeeService employeeService)
         {
             _dbContext = dbContext;
             _env = env;
             _config = config;
-            _attachmentService = attachmentService;
+            this._employeeService = employeeService;
         }
 
         [HttpGet("GetAll")] // Data annotation => يعني انو هذا ال method رح يكون GET request]
@@ -37,43 +38,12 @@ namespace HR.Controllers
                 var role = User.FindFirst(ClaimTypes.Role)?.Value; // Admin, HR, Manager, Developer
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; // 1, 2, 3, 4, 5
 
-                // LINQ query syntax
-                var data = from employee in _dbContext.Employees
-                           from department in _dbContext.Departments.Where(x => x.Id == employee.DepartmentId).DefaultIfEmpty() // Left Join
-                           from manager in _dbContext.Employees.Where(x => x.Id == employee.ManagerId).DefaultIfEmpty() // Left Join
-                           from lookup in _dbContext.Lookups.Where(x => x.Id == employee.PositionId).DefaultIfEmpty() // Left Join
-                                                                                                                      //where employee.Position == position
-                                                                                                                      //where (position == null || employee.Position == position) // if position is null, return all employees
-                           where
-                           (filterDto.PositionId == null || employee.PositionId == filterDto.PositionId) &&
-                                 (filterDto.EmployeeName == null || employee.Name.ToUpper().Contains(filterDto.EmployeeName.ToUpper())) &&
-                                 (filterDto.IsActive == null || employee.IsActive == filterDto.IsActive)
-                           //orderby employee.Age
-                           orderby employee.Id descending
-                           select new EmployeeDto
-                           {
-                               Id = employee.Id,
-                               Name = employee.Name,
-                               //Age = employee.Age,
-                               BirthDate = employee.BirthDate,
-                               //Position = employee.Position,
-                               PositionId = employee.PositionId,
-                               PositionName = lookup.Name,
-                               IsActive = employee.IsActive,
-                               StartDate = employee.StartDate,
-                               Phone = employee.Phone,
-                               ManagerId = employee.ManagerId,
-                               ManagerName = manager.Name,
-                               DepartmentId = employee.DepartmentId,
-                               DepartmentName = department.Name,
-                               ImagePath = employee.ImagePath != null ? Path.Combine(_config["BaseUrl"], employee.ImagePath) : "",
-                               UserId = employee.UserId
-                           };
+                var data = _employeeService.GetAll(filterDto);
 
-                if(role?.ToUpper() != "ADMIN" && role?.ToUpper() != "HR")
-                {
-                    data = data.Where(x => x.UserId == long.Parse(userId)); // يعني اذا ال user مش admin او hr رح يرجعلي بس ال user اللي عامل login
-                }
+                //if (role?.ToUpper() != "ADMIN" && role?.ToUpper() != "HR")
+                //{
+                //    data = data.Where(x => x.UserId == long.Parse(userId)); // يعني اذا ال user مش admin او hr رح يرجعلي بس ال user اللي عامل login
+                //}
 
                 return Ok(data);
             }
@@ -164,7 +134,7 @@ namespace HR.Controllers
 
                 if(employeeDto.Image != null)
                 {
-                    employee.ImagePath = _attachmentService.UploadImage(employeeDto.Image);
+                    employee.ImagePath = UploadImage(employeeDto.Image);
                 }
 
                 _dbContext.Employees.Add(employee);
@@ -202,7 +172,7 @@ namespace HR.Controllers
 
                 if(employeeDto.Image != null)
                 {
-                    employee.ImagePath = _attachmentService.UploadImage(employeeDto.Image);
+                    employee.ImagePath = UploadImage(employeeDto.Image);
                 }
                 else if (employeeDto.IsImage == false && employeeDto.Image == null)
                 {
@@ -284,6 +254,32 @@ namespace HR.Controllers
             });
 
             return Ok(employees);
+        }
+
+        private string UploadImage(IFormFile image)
+        {
+            //var folderPath = "C:\\Users\\abdul\\source\\repos\\HR\\Attachments\\EmployeeImages";
+            var imagesFolderPath = Path.Combine("Attachments", "EmployeeImages");
+
+            var folderPath = Path.Combine(_env.WebRootPath, imagesFolderPath);
+            if (!Directory.Exists(folderPath))
+            {
+                // Create Folder
+                Directory.CreateDirectory(folderPath);
+            }
+
+            var fileExtension = Path.GetExtension(image.FileName); // .png .jpg .jpeg ...
+            var fileName = Guid.NewGuid() + fileExtension; // Generate unique file name => 1234-5678-90ab-cdefm + .png
+
+            var filePath = Path.Combine(folderPath, fileName);
+
+            var stream = new FileStream(filePath, FileMode.Create); // Create file
+            using (stream)
+            {
+                image.CopyTo(stream); // Copy image to file Steam
+            }
+
+            return Path.Combine(imagesFolderPath, fileName);
         }
     }
 }
