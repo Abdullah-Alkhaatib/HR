@@ -40,10 +40,10 @@ namespace HR.Controllers
 
                 var data = _employeeService.GetAll(filterDto);
 
-                //if (role?.ToUpper() != "ADMIN" && role?.ToUpper() != "HR")
-                //{
-                //    data = data.Where(x => x.UserId == long.Parse(userId)); // يعني اذا ال user مش admin او hr رح يرجعلي بس ال user اللي عامل login
-                //}
+                if (role?.ToUpper() != "ADMIN" && role?.ToUpper() != "HR")
+                {
+                    data = data.Where(x => x.UserId == long.Parse(userId)); // يعني اذا ال user مش admin او hr رح يرجعلي بس ال user اللي عامل login
+                }
 
                 return Ok(data);
             }
