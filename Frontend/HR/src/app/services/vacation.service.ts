@@ -2,14 +2,14 @@ import { Injectable, } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Vacation } from '../interfaces/vacation-interface';
+import { environment } from '../../environments/environment';
 
 @Injectable({
     providedIn: 'root'
 })
 export class VacationService {
 
-    apiUrl: string = 'https://localhost:44370/api/Vacations';
-
+    apiUrl: string = `${environment.apiUrl}/Vacations`;
     constructor(private _http: HttpClient) {
     }
 
